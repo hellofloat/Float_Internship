@@ -1,0 +1,42 @@
+```{r}
+
+#library(devtools)
+#install_github("espanta/lubripack")
+#library(lubripack)
+
+x <-c("dplyr", "wordcloud", "tm", "e1071", "RTextTools","plyr","ggplot2","RColorBrewer")
+
+# Lapply: When you want to apply a function to each element of a list in turn and get a list back
+# sapply - When you want to apply a function to each element of a list in turn, but you want a vector back, rather than a list.
+
+lapply(x, require,character.only = TRUE)
+
+# lubripack(x)
+
+setwd('D:/Float/Clustering/Wordcloud')
+data <- read.csv('people_export_2016_06_15.csv')
+
+# selecing only required columns
+data <- select(data, campaign, media_source, city,state,Daily_Balance,X.region)
+
+# apply pase function to combined all words
+#data_text <- apply(data, 2, function(x) paste(x,collapse=" "))
+
+# create document term matrix
+
+for (i in 1:length(data)){
+  
+  
+  count1 <- count(data,colnames(data)[i])
+  names <- as.list(count1[1])[[1]]
+  frequency <- as.list(count1[2])[[1]]
+  
+  words <- names(frequency)
+  wordcloud(names,frequency,,scale=c(2,0.5),colors=palette())
+  
+  print(ggplot(data=data,aes(data[,i])) + geom_bar(fill="Blue") + coord_flip())
+  
+}
+
+```
+  

@@ -1,0 +1,25 @@
+
+
+```{r}
+
+setwd('D:/Float/20160712')
+load('usum.Rdata')
+
+usum1 = usum[,-c(1:4,6:13)]
+na_count <- apply(usum1, 2, function(x) sum(length(which(is.na(x)))))
+
+Col <- match(names(na_count[na_count  <= 40]),names(usum1))
+usum1 = usum1[,Col]
+
+usum2 = usum1[complete.cases(usum1),]
+
+usum2 <- usum2[usum2$accounts.balances.checking > -5000, ]
+usum2 <- usum2[usum2$accounts.balances.checking < 10000, ]
+
+for (i in 2:34){
+  par(mfrow = c(1, 1))
+  plot(usum2[,1],usum2[,i])
+}
+
+```
+

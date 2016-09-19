@@ -1,0 +1,441 @@
+
+```{r echo=FALSE, results='hide',message=FALSE, warning=FALSE}
+
+x <- c("plyr","dplyr","ggplot2","RColorBrewer", "wordcloud","gridExtra", "plotrix","pander")
+
+lapply(x, require,character.only = TRUE)
+
+setwd('D:/Float/20160712')
+load('usum.Rdata')
+load('RiskView.Rdata')
+data_total <- read.csv('people_export_2016_06_15.csv')
+
+```
+
+# Age vs. No of customers
+
+```{r echo=FALSE}
+a <- count(usum,age)  
+
+usum_age <- usum %>% filter(age>=19,age<=36)
+Count_age <- as.data.frame(count(usum_age,age))
+qplot(age, data=Count_age,weight=n, geom="histogram", binwidth=1)
+
+```
+
+We observe customers between ages 19 to 36 are significant. Hence we take customers only from this age group
+
+
+# age vs. bank transactions data
+
+# age vs. income
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+charts_bank <- usum_age %>% group_by(age) %>% summarise(avg_income = mean(income.averageMonthly),
+                                                        avg_months = mean(months),
+                                                        avg_RVscore = mean(RVbankCard),
+                                                        avg_spending = mean(spending.averageMonthly),
+                                                        avg_overdrafts_month = mean(overdrafts.count.monthly))
+
+
+print(ggplot(data = charts_bank,aes(charts_bank[,1],charts_bank[,2])) + geom_point() + geom_smooth(method =  "lm") +
+          xlab(colnames(charts_bank)[1]) + ylab(colnames(charts_bank)[2]) +  ggtitle(paste(colnames(charts_bank)[2],"vs.", colnames(charts_bank)[2])) + theme_classic())
+  
+lm0 <- lm(avg_income ~ age, data=charts_bank)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+
+
+# age vs. months of data availability
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+
+print(ggplot(data = charts_bank,aes(charts_bank[,1],charts_bank[,3])) + geom_point() + geom_smooth(method =  "lm") +
+          xlab(colnames(charts_bank)[1]) + ylab(colnames(charts_bank)[3]) +  ggtitle(paste(colnames(charts_bank)[3],"vs.", colnames(charts_bank)[3])) + theme_classic())
+  
+lm0 <- lm(avg_months ~ age, data=charts_bank)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+
+# age vs. RVScore
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+
+print(ggplot(data = charts_bank,aes(charts_bank[,1],charts_bank[,4])) + geom_point() + geom_smooth(method =  "lm") +
+          xlab(colnames(charts_bank)[1]) + ylab(colnames(charts_bank)[4]) +  ggtitle(paste(colnames(charts_bank)[4],"vs.", colnames(charts_bank)[4])) + theme_classic())
+  
+lm0 <- lm(avg_RVscore ~ age, data=charts_bank)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+
+# age vs. spending
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+
+print(ggplot(data = charts_bank,aes(charts_bank[,1],charts_bank[,5])) + geom_point() + geom_smooth(method =  "lm") +
+          xlab(colnames(charts_bank)[1]) + ylab(colnames(charts_bank)[5]) +  ggtitle(paste(colnames(charts_bank)[5],"vs.", colnames(charts_bank)[5])) + theme_classic())
+  
+lm0 <- lm(avg_spending ~ age, data=charts_bank)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+
+# age vs. Overdrafts_month
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+
+print(ggplot(data = charts_bank,aes(charts_bank[,1],charts_bank[,6])) + geom_point() + geom_smooth(method =  "lm") +
+          xlab(colnames(charts_bank)[1]) + ylab(colnames(charts_bank)[6]) +  ggtitle(paste(colnames(charts_bank)[6],"vs.", colnames(charts_bank)[6])) + theme_classic())
+  
+lm0 <- lm(avg_overdrafts_month ~ age, data=charts_bank)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+#Observations
+
+1. As expected average income and spending is increasing with increase in age  
+2. Average overdrats per month is increasing with increase in age  
+3. There is No trend in RVScore and age. Average RV Score for all ages lies between ~625 to ~650  
+4. There is slight relationship between months and age. Months increase with increase in age  
+
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+# selecing only required columns
+data_select <- select(data_total, X.distinct_id, campaign, media_source, city,state,Daily_Balance,X.region)
+
+data_RV <- select(RV,id, EducationFieldofStudyType
+                  ,EducationInstitutionRating
+                  ,EstimatedAnnualIncome
+                  ,PropertyOwner
+                  ,AssetOwner
+                  ,WealthIndex
+                  ,DerogCount
+                  ,DerogRecentCount
+                  ,DerogSeverityIndex
+                  ,InquiryCollectionsRecent,
+                  AddrStability,
+                  InputAddrMortgageType,
+                  CurrAddrDwellType,
+                  AddrRecentEconTrajectoryIndex,
+                  BusinessTitle,
+                  DerogRecentCount,
+                  RecentActivityIndex,
+                  ProfLicCount,
+                  InquiryPersonalFinanceRecent,
+                  HighRiskCreditActivity,
+                  EmailAddress,
+                  InputAddrHighRisk)
+
+data_RV <- data.frame(lapply(data_RV,function(x) as.numeric(x)))
+
+data_RV$id <- RV$id
+data_RV$CurrAddrDwellType <- RV$CurrAddrDwellType
+data_RV$BusinessTitle <- RV$BusinessTitle
+
+
+colnames(data_select)[1] <- colnames(usum_age)[1]
+colnames(data_RV)[1] <- colnames(usum_age)[1]
+
+usum_age1 <- inner_join(usum_age, data_select, by = c('id'))
+usum_age2 <- inner_join(usum_age1, data_RV, by = c('id'))
+```
+
+#Education Field of study
+
+Indicates the field study type-grouped based on similar areas of study and average incomes for occupations typically associated with those fields of study
+
+-1 ---> Field of study is not on file  
+0 ----> Field of study is uncategorized  
+Group 1 (i.e. Art, Music)  
+Group 2 (i.e. Education, Humanities, Religion, Social sciences, Liberal Arts, English, Journalism)  
+Group 3 (i.e. Business, Accounting, Marketing, Finance Management)  
+Group 4 (i.e. Biological Science, Physical Science,Biology)  
+Group 5 (i.e. Engineering, Computers, Architecture)  
+Group 6 (i.e. Law, Legal Studies)  
+Group 7 (i.e. Health professions, Nursing, Medicine,Chiropractic)  
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+pander(prop.table(addmargins(table(usum_age2$age,usum_age2$EducationFieldofStudyType), margin = 1),1))
+```
+
+#Observations
+
+1. About 82% of the people have "Field of study is not on file" and it is predominant in the younger people (19, 20 and 21)
+2. We observed similar trends in other groups as well. Only 5% of people have "field of study" has categorized
+
+#Education Institution Rating
+
+Indicates the education program rating based on various institution statistics and national ratings (Tier 1 = highest rating, Tier 6 =lowest rating)
+
+-1 ---> Information not on file 
+0 ---> Unknown 
+1 ---> Tier 1 rating  
+2 ---> Tier 2 rating  
+3 ---> Tier 3 rating  
+4 ---> Tier 4 rating  
+5 ---> Tier 5 rating  
+6 ---> Tier 6 rating  
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+pander(prop.table(addmargins(table(usum_age2$age,usum_age2$EducationInstitutionRating), margin = 1),1))
+
+```
+
+
+#Observations
+
+1. About 82% of the people have "information not on file" and it is predominant in the younger people (19, 20 and 21)
+2. We observed similar trends in other groups as well. when we dig deep into other categories we found that most people are from tier 3, 4 or 5 categories. Very few people are from tier 1 adn tier 2 category schools.
+
+
+#Address Stability
+
+Address stability index indicating how often subject has changed addresses
+
+0 --> unknown  
+(1 = High evidence of instability to 6 = High evidence of stability)  
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+pander(prop.table(addmargins(table(usum_age2$age,usum_age2$AddrStability), margin = 1),1))
+
+charts_RV_AddrStability <- usum_age2 %>% group_by(age) %>% filter(AddrStability != 0) %>% summarise(AddrStability_avg = mean(AddrStability))
+
+print(ggplot(data = charts_RV_AddrStability,aes(charts_RV_AddrStability$age,charts_RV_AddrStability$AddrStability_avg))+ geom_point() + geom_smooth(method =  "lm") + xlab('age') + ylab('AddrStability_Avg'))
+
+
+lm0 <- lm(AddrStability_avg ~ age, data=charts_RV_AddrStability)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+
+```
+
+#Observations
+
+1. Address stability index increasing with increase in age. Hence, people with high age are expected to have high scores on behalf of adress stability index
+
+
+#Derog Count
+
+Total derogatory public records (felonies,liens, bankruptcies, and evictions)
+
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+charts_RV_DerogCount <- usum_age2 %>% group_by(age) %>% summarise(DerogCount_avg = mean(DerogCount))
+
+print(ggplot(data = charts_RV_DerogCount,aes(charts_RV_DerogCount$age,charts_RV_DerogCount$DerogCount_avg))+ geom_point() + geom_smooth(method =  "lm") + xlab('age') + ylab('DerogCount_avg'))
+
+
+lm0 <- lm(DerogCount_avg ~ age, data=charts_RV_DerogCount)
+
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+#Observations
+
+1. We can clearly observe that dergortory records increases with increase in age  
+2. Lets look at how severe these records are with respect to different age groups  
+
+#DerogSeverityIndex
+
+Severity index based on the type of derogatory record
+
+0 --> No derogatory record on file  
+1 --> Record contains released liens  
+2 --> Record contains bankruptcies  
+3 --> Record contains filed liens  
+4 --> Record contains evictions  
+5 --> Record contains felonies  
+ 
+
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+pander(prop.table(addmargins(table(usum_age2$age,usum_age2$DerogSeverityIndex), margin = 1),1))
+
+charts_RV_DerogSeverityIndex <- usum_age2 %>% group_by(age) %>% summarise(DerogSeverityIndex_avg = mean(DerogSeverityIndex))
+
+print(ggplot(data = charts_RV_DerogSeverityIndex,aes(charts_RV_DerogSeverityIndex$age,charts_RV_DerogSeverityIndex$DerogSeverityIndex_avg))+ geom_point() + geom_smooth(method =  "lm") + xlab('age') + ylab('DerogSeverityIndex_avg'))
+
+lm0 <- lm(DerogSeverityIndex_avg ~ age, data=charts_RV_DerogSeverityIndex)
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+#Observations
+
+1. We can observe that overall about 22% of people have derogatory records  
+2. About 11% of the people have bankruptcy records  
+3. Most of the high severity indices are observed in elder people (average of severity index is increasing with age)  
+
+
+#Derog Recent Count
+
+Number of derogatory public records within the last 12 months
+
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+charts_RV_DerogRCount <- usum_age2 %>% group_by(age) %>% summarise(DerogRCount_avg = mean(DerogRecentCount))
+
+print(ggplot(data = charts_RV_DerogRCount,aes(charts_RV_DerogRCount$age,charts_RV_DerogRCount$DerogRCount_avg))+ geom_point() + geom_smooth(method =  "lm") + xlab('age') + ylab('DerogRecentCount_avg'))
+
+
+lm0 <- lm(DerogRCount_avg ~ age, data=charts_RV_DerogRCount)
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+#Observations
+
+1. Similar trend can be observed for derogatory records in the last 12 months
+
+
+#HighRiskCreditActivity
+
+LexisNexis RiskView personal finance inquiries or requested offers for subprime credit services (Ex. short-term loans or high-rate credit cards) associated with the subject
+
+0 ---> Subject has no other inquiries in the last 12 months   
+1 ---> Subject has one or more other inquiries in the last 12 months  
+
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+charts_RV_HRCA <- usum_age2 %>% group_by(age) %>% summarise(HRCA_avg = mean(HighRiskCreditActivity))
+
+print(ggplot(data = charts_RV_HRCA,aes(charts_RV_HRCA$age,charts_RV_HRCA$HRCA_avg))+ geom_point() + geom_smooth(method =  "lm") + xlab('age') + ylab('HRCA_avg'))
+
+lm0 <- lm(HRCA_avg ~ age, data=charts_RV_HRCA)
+
+# r.squared
+print("rsquare")
+print(summary(lm0)$r.squared)
+# p value
+print("P value")
+print(summary(lm0)$coefficients[2,4])
+
+```
+
+#Observations
+
+1. It is found to be high in customers between ages 23 - 30. Overall its is found to be increasing with age slightly
+
+# Media Source
+
+```{r echo=FALSE ,message=FALSE, warning=FALSE}
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+pander(prop.table(addmargins(table(usum_age2$age,usum_age2$media_source), margin = 1),1))
+
+```
+
+#Wordcloud of media source 
+
+```{r echo=FALSE,message=FALSE, warning=FALSE}
+count1 <- count(usum_age2,media_source)
+names <- as.list(count1[1])[[1]]
+frequency <- as.list(count1[2])[[1]]
+words <- names(frequency)
+wordcloud(names,frequency,scale=c(2,0.5),colors=palette(),max.words = 10 )
+```
+
+#Wordcloud of top BusinessTitles
+
+
+```{r echo=FALSE,message=FALSE, warning=FALSE}
+count1 <- count(usum_age2,BusinessTitle)
+pal2 <- brewer.pal(8,"Dark2")
+names <- as.list(count1[1])[[1]]
+names <- names[-1]
+frequency <- as.list(count1[2])[[1]]
+words <- names(frequency)
+wordcloud(names,frequency,scale=c(3,0.5),colors=pal2, min.freq = 2)
+```
+
+
